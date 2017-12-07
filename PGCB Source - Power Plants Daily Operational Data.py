@@ -43,7 +43,7 @@ def match_strings(d, string):
 # In[4]:
 
 
-def get_all_index_pairs(data, d):
+def get_all_index_pairs(d):
     """Returns a list of tuples. Each tuple holds the start and end indices of the corresponding region's power plants.
 
     Arguments:
@@ -66,8 +66,8 @@ def get_all_index_pairs(data, d):
 # In[5]:
 
 
-df = pd.read_excel(input_path + 'Daily Report10-01-17.xls', sheet_name="forecast", header = None)
-df.head(30)
+# df = pd.read_excel(input_path + 'Daily Report10-01-17.xls', sheet_name="forecast", header = None)
+# df.head(30)
 
 
 # In[6]:
@@ -104,10 +104,10 @@ for file in os.listdir(input_path):
     # if there is a new file in the input file directory, then process the file and append the cleaned data to the DataFrame
     if file not in existingFiles:
         filename = input_path + str(file)
-        df = pd.read_excel(filename, sheet_name='forecast', header = None).reset_index(drop=True)
+        df = pd.read_excel(filename, sheet_name='forecast', header=None).reset_index(drop=True)
         d = df.to_dict()
         date_tuple = match_strings(d, 'Date')
-        index_list = get_all_index_pairs(df,d)
+        index_list = get_all_index_pairs(d)
         csi = match_strings(d,'Name of')[1] # column start index; used for resolving the issue of the first column index varying across the raw DataFrames
 
         for i in range(len(index_list)):
@@ -153,8 +153,13 @@ actualDF.head()
 # In[12]:
 
 
-actualDF.to_csv(output_path + "actual.csv",columns=["Date"]+column_names_actual+['Installed_Minus_Derated_MW']+["Division"],index=None)
-probableDF.to_csv(output_path + "probable.csv",columns=["Date"]+column_names_probable+["Division"]+['File_Name'],index=None)
+actualDF.to_csv(
+    output_path + "actual.csv",
+    columns=["Date"]+column_names_actual+['Installed_Minus_Derated_MW']+["Division"],
+    index=None)
+probableDF.to_csv(output_path + "probable.csv",
+                  columns=["Date"]+column_names_probable+["Division"]+['File_Name'],
+                  index=None)
 
 
 # In[13]:

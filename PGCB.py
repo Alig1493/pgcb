@@ -1,7 +1,6 @@
 import os
 import pandas
-
-from exception import EmptyDirectoryException
+import traceback
 
 
 class PgcbFiles(object):
@@ -10,29 +9,47 @@ class PgcbFiles(object):
         self.input_path = os.getcwd() + input_file_dir
         self.output_path = os.getcwd() + output_file_dir
 
+    def set_input_filepath(self, input_file_dir):
+        self.input_path = os.getcwd() + input_file_dir
+
+    def set_output_filepath(self, output_file_dir):
+        self.output_path = os.getcwd() + output_file_dir
+
     def get_input_filepath(self):
         return self.input_path
 
     def get_output_filepath(self):
         return self.output_path
 
-    def list_of_input_files(self):
-        files_list = self.directory_empty(self.input_path)
-        try:
-            if not files_list:
-                raise EmptyDirectoryException("Directory is empty!")
-        except EmptyDirectoryException as e:
-            print(e)
+    def input_files_list(self):
+        files_list = self.directory_empty(self.get_input_filepath())
+        if not files_list:
+            return []
         return files_list
 
-    def list_of_output_files(self):
-        files_list = self.directory_empty(self.output_path)
-        try:
-            if not files_list:
-                raise EmptyDirectoryException("Directory is empty!")
-        except EmptyDirectoryException as e:
-            print(e)
+    def output_files_list(self):
+        files_list = self.directory_empty(self.get_output_filepath())
+        if not files_list:
+            return []
         return files_list
+
+    def generate_dataframe(self):
+        try:
+            if self.output_files_list():
+                return (pandas.read_csv(self.get_output_filepath()+'actual.csv'),
+                        pandas.read_csv(self.get_output_filepath()+'probable.csv'))
+            print("Making empty Dataframes!")
+            return pandas.DataFrame(), pandas.DataFrame()
+        except FileNotFoundError:
+            print("Wrong file or file path")
+
+    def _processed_files_list(self):
+        if 'processed_files.txt' in self.output_files_list():
+            with open('processed_files.txt') as file_item:
+                processed_files_list = [line.rstrip('\n') for line in file_item]
+            return processed_files_list
+        print("Processed files list does not exist!")
+        return []
 
     @staticmethod
     def directory_empty(filepath):
@@ -48,5 +65,5 @@ class PgcbFiles(object):
 
 class PandasProcess(object):
 
-    def __init__(self, filename, sheet_name):
+    def __init__(self):
         pass
